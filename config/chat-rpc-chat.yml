@@ -22,12 +22,12 @@ verifyCode:
       signName: ""
       verificationCodeTemplateCode: ""
   mail:
-    use: "superCode"  # superCode: user superCode; mail: use mail verify code;
-    title: ""
-    senderMail: ""
-    senderAuthorizationCode: ""
-    smtpAddr: ""
-    smtpPort:
+    use: "mail"  # superCode: user superCode; mail: use mail verify code;
+    title: "implat"
+    senderMail: "330946828@qq.com"
+    senderAuthorizationCode: "raqoviydaovfcbch"
+    smtpAddr: "smtp.qq.com"
+    smtpPort: 465
 
 liveKit:
   url: "ws://127.0.0.1:7880" # LIVEKIT_URL, LiveKit server address and port
