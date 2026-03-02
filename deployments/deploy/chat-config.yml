@@ -81,6 +81,15 @@ data:
        # Default username and password for the admin
       - "chatAdmin"
 
+    # Tencent Cloud Live (CSS) config (optional)
+    tencentLive:
+      pushDomain: ""
+      playDomain: ""
+      appName: "live"
+      pushKey: ""
+      playKey: ""
+      expireSeconds: 3600
+
   chat-api-admin.yml: |
     api:
       # Listening IP; 0.0.0.0 means both internal and external IPs are listened to, default is recommended

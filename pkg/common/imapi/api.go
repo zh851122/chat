@@ -35,6 +35,7 @@ var (
 	updateNotificationAccount = NewApiCaller[user.UpdateNotificationAccountInfoReq, user.UpdateNotificationAccountInfoResp]("/user/update_notification_account")
 
 	getGroupsInfo = NewApiCaller[group.GetGroupsInfoReq, group.GetGroupsInfoResp]("/group/get_groups_info")
+	createGroup   = NewApiCaller[group.CreateGroupReq, group.CreateGroupResp]("/group/create_group")
 	inviteToGroup = NewApiCaller[group.InviteUserToGroupReq, group.InviteUserToGroupResp]("/group/invite_user_to_group")
 
 	registerUserCount = NewApiCaller[user.UserRegisterCountReq, user.UserRegisterCountResp]("/statistics/user/register")
@@ -42,5 +43,6 @@ var (
 	friendUserIDs = NewApiCaller[relation.GetFriendIDsReq, relation.GetFriendIDsResp]("/friend/get_friend_id")
 	importFriend  = NewApiCaller[relation.ImportFriendReq, relation.ImportFriendResp]("/friend/import_friend")
 
+	sendMsg       = NewApiCaller[SendMsgReq, SendMsgResp]("/msg/send_msg")
 	sendSimpleMsg = NewApiCaller[SendSingleMsgReq, SendSingleMsgResp]("/msg/send_simple_msg")
 )

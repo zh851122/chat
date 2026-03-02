@@ -23,6 +23,16 @@ type Share struct {
 	} `mapstructure:"openIM"`
 	ChatAdmin   []string `mapstructure:"chatAdmin"`
 	ProxyHeader string   `mapstructure:"proxyHeader"`
+	TencentLive struct {
+		// Tencent Cloud Live (CSS) push/play domains and auth key.
+		// PushKey is used to generate txSecret (do NOT expose to frontend).
+		PushDomain    string `mapstructure:"pushDomain"`
+		PlayDomain    string `mapstructure:"playDomain"`
+		AppName       string `mapstructure:"appName"`
+		PushKey       string `mapstructure:"pushKey"`
+		PlayKey       string `mapstructure:"playKey"`
+		ExpireSeconds int64  `mapstructure:"expireSeconds"`
+	} `mapstructure:"tencentLive"`
 }
 
 type RpcService struct {

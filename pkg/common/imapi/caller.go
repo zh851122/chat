@@ -24,6 +24,7 @@ type CallerInterface interface {
 	GetAdminTokenCache(ctx context.Context, userID string) (string, error)
 	GetAdminTokenServer(ctx context.Context, userID string) (string, error)
 	InviteToGroup(ctx context.Context, userID string, groupIDs []string) error
+	CreateGroup(ctx context.Context, ownerUserID string, groupID string, groupName string, notification string) (string, error)
 
 	UpdateUserInfo(ctx context.Context, userID string, nickName string, faceURL string) error
 	GetUserInfo(ctx context.Context, userID string) (*sdkws.UserInfo, error)
@@ -38,6 +39,7 @@ type CallerInterface interface {
 	FriendUserIDs(ctx context.Context, userID string) ([]string, error)
 	AccountCheckSingle(ctx context.Context, userID string) (bool, error)
 	SendSimpleMsg(ctx context.Context, req *SendSingleMsgReq, key string) error
+	SendGroupTextMsg(ctx context.Context, sendID string, groupID string, text string) error
 }
 
 type authToken struct {
@@ -133,6 +135,29 @@ func (c *Caller) InviteToGroup(ctx context.Context, userID string, groupIDs []st
 	return nil
 }
 
+func (c *Caller) CreateGroup(ctx context.Context, ownerUserID string, groupID string, groupName string, notification string) (string, error) {
+	resp, err := createGroup.Call(ctx, c.imApi, &group.CreateGroupReq{
+		OwnerUserID: ownerUserID,
+		GroupInfo: &sdkws.GroupInfo{
+			GroupID:          groupID,
+			GroupName:        groupName,
+			Notification:     notification,
+			GroupType:        constant.WorkingGroup,
+			NeedVerification: constant.Directly,
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+	if resp.GroupInfo != nil && resp.GroupInfo.GroupID != "" {
+		return resp.GroupInfo.GroupID, nil
+	}
+	if groupID != "" {
+		return groupID, nil
+	}
+	return "", errs.ErrInternalServer.WrapMsg("create group success but group id is empty")
+}
+
 func (c *Caller) UpdateUserInfo(ctx context.Context, userID string, nickName string, faceURL string) error {
 	_, err := updateUserInfo.Call(ctx, c.imApi, &user.UpdateUserInfoReq{UserInfo: &sdkws.UserInfo{
 		UserID:   userID,
@@ -223,6 +248,21 @@ func (c *Caller) AccountCheckSingle(ctx context.Context, userID string) (bool, e
 
 func (c *Caller) SendSimpleMsg(ctx context.Context, req *SendSingleMsgReq, key string) error {
 	_, err := sendSimpleMsg.CallWithQuery(ctx, c.imApi, req, map[string]string{botstruct.Key: key})
+	return err
+}
+
+func (c *Caller) SendGroupTextMsg(ctx context.Context, sendID string, groupID string, text string) error {
+	req := &SendMsgReq{
+		SendID:           sendID,
+		GroupID:          groupID,
+		SenderPlatformID: constant.AdminPlatformID,
+		Content: map[string]any{
+			"content": text,
+		},
+		ContentType: constant.Text,
+		SessionType: constant.ReadGroupChatType,
+	}
+	_, err := sendMsg.Call(ctx, c.imApi, req)
 	return err
 }
 

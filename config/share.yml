@@ -11,3 +11,18 @@ openIM:
 chatAdmin:
    # Default username and password for the admin
   - "chatAdmin"
+
+# Tencent Cloud Live (CSS) config (optional)
+tencentLive:
+  # Push domain (e.g. livepush.example.com)
+  pushDomain: "227843.push.tlivecloud.com"
+  # Play domain (e.g. liveplay.example.com)
+  playDomain: "play.gongyanwenhua.com"
+  # AppName (usually "live")
+  appName: "live"
+  # Push auth key (used to generate txSecret); keep it server-side
+  pushKey: "a17e6b851f80d4fd804d93825dcceb53"
+  # Play auth key (used to generate txSecret); keep it server-side
+  playKey: "Ef7Mh8BxTWxwmQFNx4kx"
+  # txTime expiration in seconds (default 3600)
+  expireSeconds: 3600

@@ -15,7 +15,9 @@
 package mw
 
 import (
+	"context"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/openimsdk/chat/pkg/common/constant"
@@ -33,12 +35,16 @@ type MW struct {
 	client admin.AdminClient
 }
 
+const rpcTimeout = 5 * time.Second
+
 func (o *MW) parseToken(c *gin.Context) (string, int32, string, error) {
 	token := c.GetHeader("token")
 	if token == "" {
 		return "", 0, "", errs.ErrArgs.WrapMsg("token is empty")
 	}
-	resp, err := o.client.ParseToken(c, &admin.ParseTokenReq{Token: token})
+	ctx, cancel := context.WithTimeout(c, rpcTimeout)
+	defer cancel()
+	resp, err := o.client.ParseToken(ctx, &admin.ParseTokenReq{Token: token})
 	if err != nil {
 		return "", 0, "", err
 	}
@@ -57,7 +63,9 @@ func (o *MW) parseTokenType(c *gin.Context, userType int32) (string, string, err
 }
 
 func (o *MW) isValidToken(c *gin.Context, userID string, token string) error {
-	resp, err := o.client.GetUserToken(c, &admin.GetUserTokenReq{UserID: userID})
+	ctx, cancel := context.WithTimeout(c, rpcTimeout)
+	defer cancel()
+	resp, err := o.client.GetUserToken(ctx, &admin.GetUserTokenReq{UserID: userID})
 	if err != nil {
 		return err
 	}

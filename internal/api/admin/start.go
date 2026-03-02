@@ -216,4 +216,15 @@ func SetAdminRoute(router gin.IRouter, admin *Api, mw *chatmw.MW, cfg *Config, c
 	{
 		router.POST("/restart", mw.CheckAdmin, cm.Restart)
 	}
+
+	{
+		live := NewLiveRoomAPI(cfg, admin.imApiCaller, admin.GetDefaultIMAdminUserID())
+		liveGroup := router.Group("/live", mw.CheckAdmin)
+		liveGroup.POST("/config", live.GetConfig)
+		liveGroup.POST("/room/create", live.CreateRoom)
+		liveGroup.POST("/room/delete", live.DeleteRoom)
+		liveGroup.POST("/room/list", live.ListRoom)
+		liveGroup.POST("/room/urls", live.GetRoomURLs)
+		liveGroup.POST("/room/mock_barrage", live.MockRoomBarrage)
+	}
 }

@@ -33,6 +33,7 @@ type Config struct {
 	ApiConfig config.API
 	Discovery config.Discovery
 	Share     config.Share
+	Mongo     config.Mongo
 	Redis     config.Redis
 
 	RuntimeEnv string
@@ -74,7 +75,7 @@ func Start(ctx context.Context, index int, cfg *Config) error {
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
 	engine.Use(gin.Recovery(), mw.CorsHandler(), mw.GinParseOperationID())
-	SetChatRoute(engine, adminApi, mwApi)
+	SetChatRoute(engine, adminApi, mwApi, cfg)
 
 	var (
 		netDone = make(chan struct{}, 1)
@@ -125,7 +126,7 @@ func Start(ctx context.Context, index int, cfg *Config) error {
 	return nil
 }
 
-func SetChatRoute(router gin.IRouter, chat *Api, mw *chatmw.MW) {
+func SetChatRoute(router gin.IRouter, chat *Api, mw *chatmw.MW, cfg *Config) {
 	account := router.Group("/account")
 	account.POST("/code/send", chat.SendVerifyCode)                      // Send verification code
 	account.POST("/code/verify", chat.VerifyCode)                        // Verify the verification code
@@ -151,6 +152,19 @@ func SetChatRoute(router gin.IRouter, chat *Api, mw *chatmw.MW) {
 	applicationGroup := router.Group("application")
 	applicationGroup.POST("/latest_version", chat.LatestApplicationVersion)
 	applicationGroup.POST("/page_versions", chat.PageApplicationVersion)
+
+	{
+		live := NewLiveRoomAPI(cfg)
+		liveGroup := router.Group("/live", mw.CheckToken)
+		liveGroup.POST("/config", live.GetConfig)
+		liveGroup.POST("/room/list", live.ListRoom)
+		liveGroup.POST("/room/urls", live.GetRoomURLs)
+
+		liveUserGroup := router.Group("/live/user", mw.CheckToken)
+		liveUserGroup.POST("/config", live.GetConfig)
+		liveUserGroup.POST("/room/list", live.ListRoom)
+		liveUserGroup.POST("/room/urls", live.GetRoomURLs)
+	}
 
 	router.Group("/callback").POST("/open_im", chat.OpenIMCallback) // Callback
 }

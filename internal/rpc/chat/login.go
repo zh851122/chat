@@ -89,30 +89,31 @@ func (o *chatSvr) SendVerifyCode(ctx context.Context, req *chat.SendVerifyCodeRe
 	default:
 		return nil, errs.ErrArgs.WrapMsg("used unknown")
 	}
-	if o.SMS == nil && o.Mail == nil {
-		return &chat.SendVerifyCodeResp{}, nil // super code
-	}
-	if req.Email != "" {
+	isEmail := req.Email != ""
+	if isEmail {
 		switch o.conf.Mail.Use {
 		case constant.VerifySuperCode:
 			return &chat.SendVerifyCodeResp{}, nil // super code
 		case constant.VerifyMail:
+			if o.Mail == nil {
+				return nil, errs.ErrInternalServer.WrapMsg("email verification code is enabled but mail sender is not configured")
+			}
 		default:
 			return nil, errs.ErrInternalServer.WrapMsg("email verification code is not enabled")
 		}
-	}
-
-	if req.AreaCode != "" {
+	} else {
 		switch o.conf.Phone.Use {
 		case constant.VerifySuperCode:
 			return &chat.SendVerifyCodeResp{}, nil // super code
 		case constant.VerifyALi:
+			if o.SMS == nil {
+				return nil, errs.ErrInternalServer.WrapMsg("phone verification code is enabled but sms sender is not configured")
+			}
 		default:
 			return nil, errs.ErrInternalServer.WrapMsg("phone verification code is not enabled")
 		}
 	}
 
-	isEmail := req.Email != ""
 	var (
 		code     = o.genVerifyCode()
 		account  string
